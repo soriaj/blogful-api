@@ -49,8 +49,8 @@ usersRouter
    .route('/:user_id')
    .all((req, res, next) => {
       const knexInstance = req.app.get('db')
-      const { userId } = req.params
-      UsersService.getById(knexInstance, userId)
+      const { user_id } = req.params
+      UsersService.getById(knexInstance, user_id)
          .then(user => {
             if(!user){
                return res.status(404).json({ error: { message: `User doesn't exist` } })
@@ -65,8 +65,8 @@ usersRouter
    })
    .delete((req, res, next) => {
       const knexInstance = req.app.get('db')
-      const { userId } = req.params
-      UsersService.deleteUser(knexInstance, userId)
+      const { user_id } = req.params
+      UsersService.deleteUser(knexInstance, user_id)
          .then(() => {
             res.status(204).end()
          })
@@ -76,14 +76,14 @@ usersRouter
       const { fullname, username, nickname, password } = req.body
       const userToUpdate = { fullname, username, nickname, password }
       const knexInstance = req.app.get('db')
-      const { userId } = req.params
+      const { user_id } = req.params
 
-      const numberOfValues = Object.value(userToUpdate).filter(Boolean).length
+      const numberOfValues = Object.values(userToUpdate).filter(Boolean).length
       if(numberOfValues === 0){
          return res.status(400).json({ error: { message: `Request body must contain with 'fullname', 'username', 'password' or 'nickname'` } })
       }
 
-      UsersService.updateUser(knexInstance, userId, userToUpdate)
+      UsersService.updateUser(knexInstance, user_id, userToUpdate)
          .then(() => {
             res.status(204).end()
          })
