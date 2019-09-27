@@ -6,6 +6,7 @@ const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 // const ArticlesService = require('./articles-service')
 const articlesRouter = require('./articles/articles-router')
+const usersRouter = require('./users/users-router')
 const setTZ = require('set-tz')
 setTZ('UTC')
 
@@ -19,6 +20,7 @@ app.use(helmet())
 app.use(cors())
 
 app.use('/api/articles', articlesRouter)
+app.use('/api/users', usersRouter)
 // app.get('/articles', (req, res, next) => {
 //    const knexInstance = req.app.get('db')
 //    ArticlesService.getAllArticles(knexInstance)
