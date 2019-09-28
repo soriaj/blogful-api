@@ -38,9 +38,57 @@ commentsRouter
       newComment.date_commented = date_commented;
 
       CommentsService.insertComment(knexInstance, newComment)
-      .then(comment => {
-         res.status(201).location(path.posix.join(req.originalUrl, `/${comment.id}`)).json(serializeComment(comment))
-      })
-      .catch(next)
+         .then(comment => {
+            res.status(201).location(path.posix.join(req.originalUrl, `/${comment.id}`)).json(serializeComment(comment))
+         })
+         .catch(next)
    })
 
+   commentsRouter
+      .route('/:comment_id')
+      .all((req, res, next) => {
+         const knexInstance = req.app.get('db')
+         const { comment_id } = req.params
+
+         CommentsService.getById(knexInstance, comment_id)
+            .then(comment => {
+               if(!comment){
+                  return res.status(404).json({ error: { message: `Comment doesn't exist` } })
+               }
+               res.comment = comment
+               next()
+            })
+            .catch(next)
+      })
+      .get((req, res, next) => {
+         res.json(serializeComment(res.comment))
+      })
+      .delete((req, res, next) => {
+         const knexInstance = req.app.get('db')
+         const { comment_id } = req.params
+         
+         CommentsService.deleteComment(knexInstance, comment_id)
+            .then(() => {
+               return res.status(204).end()
+            })
+            .catch(next)
+      })
+      .patch(jsonParser, (req, res, next) => {
+         const { text, date_commented } = req.body
+         const commentToUpdate = { text, date_commented }
+         const knexInstance = req.app.get('db')
+         const { comment_id } = req.params
+
+         const numberOfValues = Object.values(commentToUpdate).filter(Boolean).length
+         if(numberOfValues === 0){
+            return res.status(400).json({ error: { message: `Request body must contain either 'text', 'date_commented'` } })
+         }
+         
+         CommentsService.updateComment(knexInstance, comment_id, commentToUpdate)
+            .then(() => {
+               return res.status(204).end()
+            })
+            .catch(next)
+      })
+
+      module.exports = commentsRouter
