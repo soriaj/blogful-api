@@ -13,6 +13,7 @@ const serializeArticle = article => ({
    title: xss(article.title),
    content: xss(article.content),
    date_published: article.date_published,
+   author: article.author,
 })
 
 articlesRouter
@@ -27,7 +28,7 @@ articlesRouter
    })
    .post(jsonParser, (req, res, next) => {
       const knexInstance = req.app.get('db')
-      const { title, style, content } = req.body
+      const { title, style, content, author } = req.body
       const newArticle = { title, style, content }
 
       for(const [key, value] of Object.entries(newArticle)){
@@ -38,6 +39,7 @@ articlesRouter
          }
       }
 
+      newArticle.author = author
       ArticlesService.insertArticle(knexInstance, newArticle)
          .then(article => {
             res.status(201).location(path.posix.join(req.originalUrl,`/${article.id}`)).json(serializeArticle(article))
