@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 const knex = require('knex')
-const { TEST_DB_URL } = require('../src/config')
+const { TEST_DATABASE_URL } = require('../src/config')
 const app = require('../src/app')
 const setTZ = require('set-tz')
 const { makeArticleArray } = require('./articles.fixture')
@@ -14,7 +14,7 @@ describe.only('Articles Endpoint', () => {
    before('make knex instance', () => {
       db = knex({
          client: 'pg',
-         connection: TEST_DB_URL,
+         connection: TEST_DATABASE_URL,
       })
       app.set('db', db)
    })
@@ -175,8 +175,6 @@ describe.only('Articles Endpoint', () => {
                expect(res.body.content).to.eql(newArticle.content)
                expect(res.body).to.have.property('id')
                expect(res.headers.location).to.eql(`/api/articles/${res.body.id}`)
-               // const expected = new Date().toLocaleString()
-               // const actual = new Date(res.body.date_published).toLocaleString()
                const expected = new Intl.DateTimeFormat('en-US').format(new Date())
                const actual = new Intl.DateTimeFormat('en-US').format(new Date(res.body.date_published))
                expect(expected).to.eql(actual)
